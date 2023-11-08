@@ -137,11 +137,12 @@ class _QRViewState extends State<QRView> {
           );
           break;
         case TargetPlatform.iOS:
+          final param = _QrCameraSettings(cameraFacing: widget.cameraFacing).toMap();
+          param.addAll({"is_zxing": isZxingForSpecifiedIosVersion,});
           _platformQrView = UiKitView(
             viewType: 'net.touchcapture.qr.flutterqr/qrview',
             onPlatformViewCreated: _onPlatformViewCreated,
-            creationParams:
-                _QrCameraSettings(cameraFacing: widget.cameraFacing).toMap().addAll({"is_zxing": isZxingForSpecifiedIosVersion,}),
+            creationParams: param,
             creationParamsCodec: const StandardMessageCodec(),
           );
           break;

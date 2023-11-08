@@ -161,6 +161,7 @@ class _QRViewExampleState extends State<QRViewExample> {
           borderWidth: 10,
           cutOutSize: scanArea),
       onPermissionSet: (ctrl, p) => _onPermissionSet(context, ctrl, p),
+      isZxingForSpecifiedIosVersion: true,
     );
   }
 
