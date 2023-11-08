@@ -67,12 +67,10 @@ extension ZXingViewController {
         _capture.focusMode =  .continuousAutoFocus
         _capture.delegate = self
         
-        view.backgroundColor = .blue
+        view.backgroundColor = .black
         
         self.view.layer.addSublayer(_capture.layer)
         guard let _scanView = scanView, let _resultLabel = resultLabel else { return }
-        // self.view.bringSubviewToFront(_scanView)
-        // self.view.bringSubviewToFront(_resultLabel)
         self.view.bringSubview(toFront: _scanView)
         self.view.bringSubview(toFront: _resultLabel)
     }
@@ -233,10 +231,7 @@ extension ZXingViewController: ZXCaptureDelegate {
         
         let displayStr = "Scanned !\nFormat: \(format)\nContents: \(text)"
         resultLabel?.text = displayStr
-        
-
-        print(NSData(bytes: _result.rawBytes.array, length: Int(_result.rawBytes.length)))
-        
+                
         delegate?.metadataOutput(qrcode: .init(rawValue: text, data: NSData(bytes: _result.rawBytes.array, length: Int(_result.rawBytes.length))))
         
         AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
