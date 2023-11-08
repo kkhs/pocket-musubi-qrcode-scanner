@@ -195,6 +195,9 @@ public class QRView: NSObject,FlutterPlatformView {
                                     return ["code": stringValue, "type": typeString, "rawBytes": safeBytes]
                                 }()
                                 guard result != nil else { continue }
+                                
+                                AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+
                                 if allowedBarcodeTypes.count == 0 || allowedBarcodeTypes.contains(code.type) {
                                     self?.channel.invokeMethod("onRecognizeQR", arguments: result)
                                 }
