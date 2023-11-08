@@ -21,7 +21,7 @@ public class QRViewFactory: NSObject, FlutterPlatformViewFactory {
         let isZXing = params["is_zxing"]! as! Bool
                 
         if (isZXing) {
-            return QRView(withFrame: frame, withRegistrar: registrar!,withId: viewId, params: params)
+            return ZXingQRView(withFrame: frame, withRegistrar: registrar!,withId: viewId, params: params)
         } else {
             
             return QRView(withFrame: frame, withRegistrar: registrar!,withId: viewId, params: params)
