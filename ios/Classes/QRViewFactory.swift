@@ -17,8 +17,15 @@ public class QRViewFactory: NSObject, FlutterPlatformViewFactory {
     }
     
     public func create(withFrame frame: CGRect, viewIdentifier viewId: Int64, arguments args: Any?) -> FlutterPlatformView {
-        let params = args as! Dictionary<String, Double>
-        return QRView(withFrame: frame, withRegistrar: registrar!,withId: viewId, params: params)
+        let params = args as! Dictionary<String, Any>
+        let isZXing = params["is_zxing"]! as! Bool
+                
+        if (isZXing) {
+            return ZXingQRView(withFrame: frame, withRegistrar: registrar!,withId: viewId, params: params)
+        } else {
+            
+            return QRView(withFrame: frame, withRegistrar: registrar!,withId: viewId, params: params)
+        }
     }
     
     public func createArgsCodec() -> FlutterMessageCodec & NSObjectProtocol {

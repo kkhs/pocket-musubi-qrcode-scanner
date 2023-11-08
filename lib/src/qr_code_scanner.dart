@@ -21,15 +21,16 @@ typedef PermissionSetCallback = void Function(QRViewController, bool);
 /// The [QRView] is the view where the camera
 /// and the barcode scanner gets displayed.
 class QRView extends StatefulWidget {
-  const QRView({
-    required Key key,
-    required this.onQRViewCreated,
-    this.overlay,
-    this.overlayMargin = EdgeInsets.zero,
-    this.cameraFacing = CameraFacing.back,
-    this.onPermissionSet,
-    this.formatsAllowed = const <BarcodeFormat>[],
-  }) : super(key: key);
+  const QRView(
+      {required Key key,
+      required this.onQRViewCreated,
+      this.overlay,
+      this.overlayMargin = EdgeInsets.zero,
+      this.cameraFacing = CameraFacing.back,
+      this.onPermissionSet,
+      this.formatsAllowed = const <BarcodeFormat>[],
+      this.isZxingForSpecifiedIosVersion = false})
+      : super(key: key);
 
   /// [onQRViewCreated] gets called when the view is created
   final QRViewCreatedCallback onQRViewCreated;
@@ -53,6 +54,9 @@ class QRView extends StatefulWidget {
   /// Use [formatsAllowed] to specify which formats needs to be scanned.
   final List<BarcodeFormat> formatsAllowed;
 
+  // NOTE: 特定のiOS(17.1, 17.1.1, ...)では、iOS実装のQRコード読み込み処理がエラーになるためZXingで処理する
+  final bool isZxingForSpecifiedIosVersion;
+
   @override
   State<StatefulWidget> createState() => _QRViewState();
 }
@@ -74,8 +78,12 @@ class _QRViewState extends State<QRView> {
       onNotification: onNotification,
       child: SizeChangedLayoutNotifier(
         child: (widget.overlay != null)
-            ? _getPlatformQrViewWithOverlay()
-            : _getPlatformQrView(),
+            ? _getPlatformQrViewWithOverlay(
+                isZxingForSpecifiedIosVersion:
+                    widget.isZxingForSpecifiedIosVersion)
+            : _getPlatformQrView(
+                isZxingForSpecifiedIosVersion:
+                    widget.isZxingForSpecifiedIosVersion),
       ),
     );
   }
@@ -97,10 +105,14 @@ class _QRViewState extends State<QRView> {
     return false;
   }
 
-  Widget _getPlatformQrViewWithOverlay() {
+  Widget _getPlatformQrViewWithOverlay({
+    bool isZxingForSpecifiedIosVersion = false,
+  }) {
     return Stack(
       children: [
-        _getPlatformQrView(),
+        _getPlatformQrView(
+          isZxingForSpecifiedIosVersion: isZxingForSpecifiedIosVersion,
+        ),
         Padding(
           padding: widget.overlayMargin,
           child: Container(
@@ -113,7 +125,9 @@ class _QRViewState extends State<QRView> {
     );
   }
 
-  Widget _getPlatformQrView() {
+  Widget _getPlatformQrView({
+    bool isZxingForSpecifiedIosVersion = false,
+  }) {
     Widget _platformQrView;
     if (kIsWeb) {
       _platformQrView = createWebQrView(
@@ -133,11 +147,15 @@ class _QRViewState extends State<QRView> {
           );
           break;
         case TargetPlatform.iOS:
+          final param =
+              _QrCameraSettings(cameraFacing: widget.cameraFacing).toMap();
+          param.addAll({
+            "is_zxing": isZxingForSpecifiedIosVersion,
+          });
           _platformQrView = UiKitView(
             viewType: 'net.touchcapture.qr.flutterqr/qrview',
             onPlatformViewCreated: _onPlatformViewCreated,
-            creationParams:
-                _QrCameraSettings(cameraFacing: widget.cameraFacing).toMap(),
+            creationParams: param,
             creationParamsCodec: const StandardMessageCodec(),
           );
           break;
