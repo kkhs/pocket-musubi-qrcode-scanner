@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Vibrator
 import android.view.View
 import androidx.core.content.ContextCompat
 import com.google.zxing.BarcodeFormat
@@ -247,6 +248,8 @@ class QRView(
                             "rawBytes" to result.rawBytes
                         )
 
+                        vibrate()
+
                         channel.invokeMethod(CHANNEL_METHOD_ON_RECOGNIZE_QR, code)
                     }
                 }
@@ -381,6 +384,18 @@ class QRView(
 
         private const val ERROR_MESSAGE_NOT_SET = "No barcode view found"
         private const val ERROR_MESSAGE_FLASH_NOT_FOUND = "This device doesn't support flash"
+    }
+
+    private fun vibrate() {
+        val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+    
+        if (vibrator != null && vibrator.hasVibrator()) {
+            // バイブレーションのパターンを指定
+            val pattern = longArrayOf(0, 200) // バイブレーションの長さ（ミリ秒）
+    
+            // バイブレーションを開始
+            vibrator.vibrate(pattern, 1)
+        }
     }
 }
 
