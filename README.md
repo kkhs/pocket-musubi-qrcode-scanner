@@ -1,4 +1,4 @@
-# kusabi-qrcode-scanner
+# pocket-musubi-qrcode-scanner
 
 下記のfork
 https://github.com/juliuscanute/qr_code_scanner
