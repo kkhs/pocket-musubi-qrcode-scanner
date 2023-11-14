@@ -5,7 +5,11 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.CombinedVibration
+import android.os.VibrationEffect
+import android.os.VibrationEffect.DEFAULT_AMPLITUDE
 import android.os.Vibrator
+import android.os.VibratorManager
 import android.view.View
 import androidx.core.content.ContextCompat
 import com.google.zxing.BarcodeFormat
@@ -387,14 +391,15 @@ class QRView(
     }
 
     private fun vibrate() {
-        val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-    
-        if (vibrator != null && vibrator.hasVibrator()) {
-            // バイブレーションのパターンを指定
-            val pattern = longArrayOf(0, 200) // バイブレーションの長さ（ミリ秒）
-    
-            // バイブレーションを開始
-            vibrator.vibrate(pattern, 1)
+        // VibratorManager is only available on Android 12(31) or later
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+            val vibrationEffect = VibrationEffect.createOneShot(200, DEFAULT_AMPLITUDE)
+            vibratorManager.vibrate(CombinedVibration.createParallel(vibrationEffect))
+        } else {
+            val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            val vibrationEffect = VibrationEffect.createOneShot(200, DEFAULT_AMPLITUDE)
+            vibrator.vibrate(vibrationEffect)
         }
     }
 }
