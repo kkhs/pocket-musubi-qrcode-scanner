@@ -216,11 +216,11 @@ extension ZXingViewController {
 
 // MARK: ZXCaptureDelegate
 extension ZXingViewController: ZXCaptureDelegate {
-    func captureCameraIsReady(_ capture: ZXCapture!) {
+    func captureCameraIsReady(_ capture: ZXCapture?) {
         isScanning = true
     }
     
-    func captureResult(_ capture: ZXCapture!, result: ZXResult!) {
+    func captureResult(_ capture: ZXCapture?, result: ZXResult?) {
         guard let _result = result, isScanning == true else { return }
 
         capture?.stop()
@@ -243,3 +243,4 @@ extension ZXingViewController: ZXCaptureDelegate {
         }
     }
 }
+

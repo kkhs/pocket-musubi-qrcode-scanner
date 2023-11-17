@@ -33,27 +33,25 @@ public class ZXingQRView: NSObject, FlutterPlatformView {
 
     }
     
-    public func view() -> UIView {        
+    public func view() -> UIView {
+        qrView.found(
+            completion: { [weak self] r in self?.channel.invokeMethod("onRecognizeQR", arguments: ["code": r.rawValue, "type": "QR_CODE", "rawBytes": r.data])
+        })
+        
         channel.setMethodCallHandler({
             [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
 
             // NOTE: 必須のもの以外は削除
             switch(call.method){
                 case "startScan":
-                    self?.startScan(call.arguments as! Array<Int>, result)
+                self?.qrView.error(completion: { error in
+                    let scanError = FlutterError(code: "unknown-error", message: "Unable to start scanning", details: error)
+                    result(scanError)
+                })
             default:
                 break
             }
         })
         return previewView
-    }
-
-    func startScan(_ arguments: Array<Int>, _ result: @escaping FlutterResult) {
-        qrView.found(
-            completion: { [weak self] r in self?.channel.invokeMethod("onRecognizeQR", arguments: ["code": r.rawValue, "type": "QR_CODE", "rawBytes": r.data])
-        }).error(completion: { error in
-            let scanError = FlutterError(code: "unknown-error", message: "Unable to start scanning", details: error)
-            result(scanError)
-        })
     }
 }
