@@ -221,7 +221,7 @@ extension ZXingViewController: ZXCaptureDelegate {
     }
     
     func captureResult(_ capture: ZXCapture?, result: ZXResult?) {
-        guard let _result = result, isScanning == true else { return }
+        guard let _result = result, let rawBytes = _result.rawBytes, isScanning == true else { return }
 
         capture?.stop()
         isScanning = false
@@ -231,8 +231,9 @@ extension ZXingViewController: ZXCaptureDelegate {
         
         let displayStr = "Scanned !\nFormat: \(format)\nContents: \(text)"
         resultLabel?.text = displayStr
+        
                 
-        delegate?.metadataOutput(qrcode: .init(rawValue: text, data: NSData(bytes: _result.rawBytes.array, length: Int(_result.rawBytes.length))))
+        delegate?.metadataOutput(qrcode: .init(rawValue: text, data: NSData(bytes: rawBytes.array, length: Int(rawBytes.length))))
         
         AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
         
