@@ -16,9 +16,6 @@ class ZXingViewController: UIViewController {
     
     // MARK: Properties
     
-    @IBOutlet weak var scanView: UIView?
-    @IBOutlet weak var resultLabel: UILabel?
-    
     fileprivate var capture: ZXCapture?
     
     fileprivate var isScanning: Bool?
@@ -70,9 +67,6 @@ extension ZXingViewController {
         view.backgroundColor = .black
         
         self.view.layer.addSublayer(_capture.layer)
-        guard let _scanView = scanView, let _resultLabel = resultLabel else { return }
-        self.view.bringSubview(toFront: _scanView)
-        self.view.bringSubview(toFront: _resultLabel)
     }
     
     func applyOrientation() {
@@ -233,11 +227,6 @@ extension ZXingViewController: ZXCaptureDelegate {
         isScanning = false
         
         let text = _result.text ?? "Unknow"
-        let format = barcodeFormatToString(format: _result.barcodeFormat)
-        
-        let displayStr = "Scanned !\nFormat: \(format)\nContents: \(text)"
-        resultLabel?.text = displayStr
-        
                 
         delegate?.metadataOutput(qrcode: .init(rawValue: text, data: NSData(bytes: rawBytes.array, length: Int(rawBytes.length))))
         
