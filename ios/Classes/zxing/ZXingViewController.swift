@@ -64,7 +64,7 @@ extension ZXingViewController {
         capture = ZXCapture()
         guard let _capture = capture else { return }
         _capture.camera = _capture.back()
-        _capture.focusMode =  .continuousAutoFocus
+        _capture.focusMode = .continuousAutoFocus
         _capture.delegate = self
         
         view.backgroundColor = .black
@@ -118,10 +118,16 @@ extension ZXingViewController {
     }
     
     func applyRectOfInterest(orientation: UIInterfaceOrientation) {
-        guard var transformedVideoRect = scanView?.frame,
-            let cameraSessionPreset = capture?.sessionPreset
-            else { return }
+        guard let cameraSessionPreset = capture?.sessionPreset else { return }
         
+        // 読み取り可能エリアのサイズを定義
+        // おくすり連絡帳アプリ側で定義しているエリアのサイズに合わせる
+        //https://github.com/kkhs/pocket-musubi-native/blob/develop/lib/components/qr_code_reader/qr_code_reader.dart/#L213
+        let scanAreaSize: CGFloat = (view.bounds.width < 400 || view.bounds.height < 400) ? 225.0 : 300.0
+        let marginX = (view.bounds.width - scanAreaSize) * 0.5
+        let marginY = (view.bounds.height - scanAreaSize) * 0.5
+        var transformedVideoRect = CGRect(x: marginX, y: marginY, width: scanAreaSize, height: scanAreaSize)
+
         var scaleVideoX, scaleVideoY: CGFloat
         var videoHeight, videoWidth: CGFloat
         
