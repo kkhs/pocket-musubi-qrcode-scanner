@@ -110,61 +110,6 @@ extension ZXingViewController {
         capture?.layer.frame = view.frame
     }
     
-    func barcodeFormatToString(format: ZXBarcodeFormat) -> String {
-        switch (format) {
-            case kBarcodeFormatAztec:
-                return "Aztec"
-            
-            case kBarcodeFormatCodabar:
-                return "CODABAR"
-            
-            case kBarcodeFormatCode39:
-                return "Code 39"
-            
-            case kBarcodeFormatCode93:
-                return "Code 93"
-            
-            case kBarcodeFormatCode128:
-                return "Code 128"
-            
-            case kBarcodeFormatDataMatrix:
-                return "Data Matrix"
-            
-            case kBarcodeFormatEan8:
-                return "EAN-8"
-            
-            case kBarcodeFormatEan13:
-                return "EAN-13"
-            
-            case kBarcodeFormatITF:
-                return "ITF"
-            
-            case kBarcodeFormatPDF417:
-                return "PDF417"
-            
-            case kBarcodeFormatQRCode:
-                return "QR Code"
-            
-            case kBarcodeFormatRSS14:
-                return "RSS 14"
-            
-            case kBarcodeFormatRSSExpanded:
-                return "RSS Expanded"
-            
-            case kBarcodeFormatUPCA:
-                return "UPCA"
-            
-            case kBarcodeFormatUPCE:
-                return "UPCE"
-            
-            case kBarcodeFormatUPCEANExtension:
-                return "UPC/EAN extension"
-            
-            default:
-                return "Unknown"
-            }
-    }
-    
     func adjustScanRect() {
         guard let captureLayer = capture?.layer as? AVCaptureVideoPreviewLayer else { return }
         // 読み取り可能エリアのサイズを定義
