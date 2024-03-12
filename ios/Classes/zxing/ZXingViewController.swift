@@ -101,7 +101,6 @@ extension ZXingViewController {
                 break
         }
         
-        applyRectOfInterest(orientation: orientation)
         
         let angleRadius = captureRotation / 180.0 * Double.pi
         let captureTranform = CGAffineTransform(rotationAngle: CGFloat(angleRadius))
@@ -109,53 +108,6 @@ extension ZXingViewController {
         capture?.transform = captureTranform
         capture?.rotation = CGFloat(scanRectRotation)
         capture?.layer.frame = view.frame
-    }
-    
-    func applyRectOfInterest(orientation: UIInterfaceOrientation) {
-        guard let cameraSessionPreset = capture?.sessionPreset else { return }
-        
-        // 読み取り可能エリアのサイズを定義
-        // おくすり連絡帳アプリ側で定義しているエリアのサイズに合わせる
-        //https://github.com/kkhs/pocket-musubi-native/blob/develop/lib/components/qr_code_reader/qr_code_reader.dart/#L213
-        let scanAreaSize: CGFloat = (view.bounds.width < 400 || view.bounds.height < 400) ? 225.0 : 300.0
-        let marginX = (view.bounds.width - scanAreaSize) * 0.5
-        let marginY = (view.bounds.height - scanAreaSize) * 0.5
-        var transformedVideoRect = CGRect(x: marginX, y: marginY, width: scanAreaSize, height: scanAreaSize)
-
-        var scaleVideoX, scaleVideoY: CGFloat
-        var videoHeight, videoWidth: CGFloat
-        
-        // Currently support only for 1920x1080 || 1280x720
-        if cameraSessionPreset == AVCaptureSession.Preset.hd1920x1080.rawValue {
-            videoHeight = 1080.0
-            videoWidth = 1920.0
-        } else {
-            videoHeight = 720.0
-            videoWidth = 1280.0
-        }
-        
-        if orientation == UIInterfaceOrientation.portrait {
-            scaleVideoX = self.view.frame.width / videoHeight
-            scaleVideoY = self.view.frame.height / videoWidth
-            
-            // Convert CGPoint under portrait mode to map with orientation of image
-            // because the image will be cropped before rotate
-            // reference: https://github.com/TheLevelUp/ZXingObjC/issues/222
-            let realX = transformedVideoRect.origin.y;
-            let realY = self.view.frame.size.width - transformedVideoRect.size.width - transformedVideoRect.origin.x;
-            let realWidth = transformedVideoRect.size.height;
-            let realHeight = transformedVideoRect.size.width;
-            transformedVideoRect = CGRect(x: realX, y: realY, width: realWidth, height: realHeight);
-        
-        } else {
-            scaleVideoX = self.view.frame.width / videoWidth
-            scaleVideoY = self.view.frame.height / videoHeight
-        }
-        
-        captureSizeTransform = CGAffineTransform(scaleX: 1.0/scaleVideoX, y: 1.0/scaleVideoY)
-        guard let _captureSizeTransform = captureSizeTransform else { return }
-        let transformRect = transformedVideoRect.applying(_captureSizeTransform)
-        capture?.scanRect = transformRect
     }
     
     func barcodeFormatToString(format: ZXBarcodeFormat) -> String {
@@ -212,12 +164,31 @@ extension ZXingViewController {
                 return "Unknown"
             }
     }
+    
+    func adjustScanRect() {
+        guard let captureLayer = capture?.layer as? AVCaptureVideoPreviewLayer else { return }
+        // 読み取り可能エリアのサイズを定義
+        // おくすり連絡帳アプリ側で実装している定義しているエリアサイズ算出ロジックに合わせる
+        //https://github.com/kkhs/pocket-musubi-native/blob/develop/lib/components/qr_code_reader/qr_code_reader.dart/#L213
+        // TODO: scanAreaSizeはflutter側から渡されるargsから知ることも可能なので今後必要に応じて修正する
+        let scanAreaSize: CGFloat = (view.bounds.width < 400 || view.bounds.height < 400) ? 225.0 : 300.0
+        let marginX = (view.bounds.width - scanAreaSize) * 0.5
+        let marginY = (view.bounds.height - scanAreaSize) * 0.5
+        let scanRect = CGRect(x: marginX, y: marginY, width: scanAreaSize, height: scanAreaSize)
+        
+        // 参考: https://github.com/zxingify/zxingify-objc/blob/master/examples/BarcodeScannerSwift/BarcodeScannerSwift/ViewController.swift#L139
+        let metadataOutputRect = captureLayer.metadataOutputRectConverted(fromLayerRect: scanRect)
+        let rectOfInterest = capture!.output.outputRectConverted(fromMetadataOutputRect: metadataOutputRect)
+        capture?.scanRect = rectOfInterest
+    }
 }
 
 // MARK: ZXCaptureDelegate
 extension ZXingViewController: ZXCaptureDelegate {
     func captureCameraIsReady(_ capture: ZXCapture?) {
         isScanning = true
+        
+        adjustScanRect()
     }
     
     func captureResult(_ capture: ZXCapture?, result: ZXResult?) {
