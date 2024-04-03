@@ -3,7 +3,7 @@
 //  flutter_qr
 //
 //  Created by Julius Canute on 21/12/18.
-//  test hoshi
+//
 
 import Foundation
 import MTBBarcodeScanner
