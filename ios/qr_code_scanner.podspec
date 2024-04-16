@@ -20,5 +20,6 @@ A new Flutter project.
   s.dependency 'ZXingObjC'
   s.ios.deployment_target = '8.0'
   s.swift_version = '4.0'
+  s.resource_bundles = {'qr_code_scanner_ios_privacy' => ['Resources/PrivacyInfo.xcprivacy']}
 end
 

@@ -116,4 +116,6 @@ app.*.symbols
 !/dev/ci/**/Gemfile.lock
 
 # kusabi
-.fvm/flutter_sdk
+
+# FVM Version Cache
+.fvm/
